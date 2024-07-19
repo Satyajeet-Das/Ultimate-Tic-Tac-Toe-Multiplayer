@@ -30,13 +30,8 @@
   --color-surface-mixed-600: #8f9296;
 }
 
-body {
-  background-color: var(--color-surface-mixed-100);
-  font-family: 'Outfit';
-}
-
 .game-board {
-  margin: 33px 0px 10px 40px;
+  margin: 33px 0px 0px 40px;
   display: flex;
 }
 
@@ -180,11 +175,16 @@ body {
   /* text-align: center; */
 }
 
-.xo-turn img {
+.turn-img {
+  display: none;
   height: 40px;
   margin: 0px 15px;
 }
 
 .xo-turn p {
   margin-bottom: 0px;
+}
+
+.turn-img.active {
+  display: block;
 }

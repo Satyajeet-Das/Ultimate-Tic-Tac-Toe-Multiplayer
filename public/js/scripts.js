@@ -1,3 +1,5 @@
+const socket = io();
+
 let uttBoard = Array.from({ length: 9 }, () => Array(9).fill("_"));
 let board = Array(9).fill("_");
 const WINS = [
@@ -85,7 +87,8 @@ function nextCells(cb) {
   return cells;
 }
 
-function validMove(x, y, cb) {
+function validMove(clock, x, y, cb) {
+  if (clock["player1"] === 0 || clock["player2"] === 0) return false;
   return nextCells(cb).some((cell) => cell[0] === x && cell[1] === y);
 }
 
@@ -132,7 +135,7 @@ function highlightValidMoves() {
   boxes.forEach((box) => {
     box.classList.remove("highlight");
     box.removeEventListener("mouseenter", xHoverIn);
-    box.removeEventListener("mouseleave", xHoverIn);
+    box.removeEventListener("mouseleave", xHoverOut);
     box.removeEventListener("mouseenter", oHoverIn);
     box.removeEventListener("mouseleave", oHoverOut);
   });
@@ -155,6 +158,99 @@ function highlightValidMoves() {
   });
 }
 
+function removeAllHighlights() {
+  boxes.forEach((box) => {
+    box.classList.remove("highlight");
+    box.removeEventListener("mouseenter", xHoverIn);
+    box.removeEventListener("mouseleave", xHoverIn);
+    box.removeEventListener("mouseenter", oHoverIn);
+    box.removeEventListener("mouseleave", oHoverOut);
+  });
+}
+
+function playerMove(clickedBox, opponentPlayerNo, symbol, opponentTime, x, y) {
+  clickedBox.style.display = "block";
+  uttBoard[x - 1][y - 1] = symbol;
+  stopTimer(player1Time);
+  stopTimer(player2Time);
+  player2Time = startTimer(playerClock, opponentPlayerNo, opponentTime);
+  if (symbol === "X") {
+    xTurn.classList.remove("active");
+    oTurn.classList.add("active");
+  } else if (symbol === "O") {
+    oTurn.classList.remove("active");
+    xTurn.classList.add("active");
+  }
+}
+
+function winMsg(element) {
+  xTurn.classList.remove("active");
+  oTurn.classList.remove("active");
+  element.classList.add("active");
+
+  turnMsg.textContent = "Won";
+}
+
+function drawMsg() {
+  xTurn.classList.remove("active");
+  oTurn.classList.remove("active");
+  turnMsg.textContent = "Draw";
+}
+
+function startTimer(clock, player, display) {
+  let timer = clock[player];
+  let minutes, seconds;
+  const timeId = setInterval(function () {
+    minutes = parseInt(timer / 60, 10);
+    seconds = parseInt(timer % 60, 10);
+
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    display.textContent = minutes + ":" + seconds;
+    timer--;
+    clock[player] = timer;
+
+    if (timer < 0) {
+      timer = 0;
+      clock[player] = timer;
+      clearInterval(timeId);
+      removeAllHighlights();
+      if (player === "player1") {
+        console.log("O won");
+        winMsg(oTurn);
+      } else if (player === "player2") {
+        console.log("X won");
+        winMsg(oTurn);
+      }
+      // timer = duration; // uncomment this line to reset timer automatically after reaching 0
+    }
+  }, 1000);
+
+  return timeId;
+}
+
+function stopTimer(timeId) {
+  clearInterval(timeId);
+}
+const time1 = document.getElementById("player1-time");
+const time2 = document.getElementById("player2-time");
+// console.log(timeVariableP1.innerHTML)
+// console.log(timeVariableP2.innerHTML)
+var timeP1 = parseInt(time1.innerHTML[1]) * 60 + parseInt(time1.innerHTML[0]);
+var timeP2 = parseInt(time2.innerHTML[1]) * 60 + parseInt(time2.innerHTML[0]);
+console.log(timeP1 + " " + timeP2);
+const playerClock = {
+  player1: timeP1,
+  player2: timeP2,
+};
+
+const xTurn = document.getElementById("x-turn");
+const oTurn = document.getElementById("o-turn");
+const turnMsg = document.getElementById("turn-msg");
+
+let player1Time = startTimer(playerClock, "player1", time1);
+let player2Time;
 highlightValidMoves();
 for (let i = 0; i < boxes.length; i++) {
   boxes[i].addEventListener("click", () => {
@@ -163,15 +259,13 @@ for (let i = 0; i < boxes.length; i++) {
     console.log(id);
     const x = parseInt(id[0]);
     const y = parseInt(id[2]);
-    if (validMove(x - 1, y - 1, currentBoard)) {
+    if (validMove(playerClock, x - 1, y - 1, currentBoard)) {
       if (moves % 2 === 0) {
         const clickedBox = boxes[i].querySelector(".x-container");
-        clickedBox.style.display = "block";
-        uttBoard[x - 1][y - 1] = "X";
+        playerMove(clickedBox, "player2", "X", time2, x, y);
       } else {
         const clickedBox = boxes[i].querySelector(".o-container");
-        clickedBox.style.display = "block";
-        uttBoard[x - 1][y - 1] = "O";
+        playerMove(clickedBox, "player1", "O", time1, x, y);
       }
 
       if (moves % 2 === 0 && boardWin(x - 1, "X")) {
@@ -202,52 +296,23 @@ for (let i = 0; i < boxes.length; i++) {
       highlightValidMoves();
 
       if (gameOver()) {
-        boxes.forEach((box) => {
-          box.classList.remove("highlight");
-          box.removeEventListener("mouseenter", xHoverIn);
-          box.removeEventListener("mouseleave", xHoverIn);
-          box.removeEventListener("mouseenter", oHoverIn);
-          box.removeEventListener("mouseleave", oHoverOut);
-        });
+        stopTimer(player1Time);
+        stopTimer(player2Time);
+        removeAllHighlights();
         if (win(p1)) {
           console.log("X won");
+          winMsg(xTurn);
         } else if (win(p2)) {
           console.log("O won");
+          winMsg(oTurn);
         } else {
           console.log("Draw");
+          drawMsg();
         }
       }
     }
   });
 }
-
-function startTimer(duration, display) {
-  let timer = duration;
-  let minutes, seconds;
-  setInterval(function () {
-      minutes = parseInt(timer / 60, 10)
-      seconds = parseInt(timer % 60, 10);
-
-      minutes = minutes < 10 ? "0" + minutes : minutes;
-      seconds = seconds < 10 ? "0" + seconds : seconds;
-
-      display.textContent = minutes + ":" + seconds;
-
-      if (--timer < 0) {
-          timer = 0;
-          // timer = duration; // uncomment this line to reset timer automatically after reaching 0
-      }
-  }, 1000);
-}
-
-function stopTimer(display){
-  clearInterval(display);
-}
-
-let time = 120; // your time in seconds here
-const time1 = document.querySelector('#player1-time');
-const time2 = document.querySelector('#player2-time');
-startTimer(time, time1);
 
 // function displayBoard() {
 //     for (let row_block = 0; row_block < 3; row_block++) {

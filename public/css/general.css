@@ -1,0 +1,32 @@
+:root {
+    --bs-body-bg: #1b1b1b;
+  
+    /** CSS DARK THEME PRIMARY COLORS */
+    --color-primary-100: #2196f3;
+    --color-primary-200: #50a1f5;
+    --color-primary-300: #6eacf6;
+    --color-primary-400: #87b8f8;
+    --color-primary-500: #9dc3f9;
+    --color-primary-600: #b2cffb;
+  
+    /** CSS DARK THEME SURFACE COLORS */
+    --color-surface-100: #121212;
+    --color-surface-200: #282828;
+    --color-surface-300: #3f3f3f;
+    --color-surface-400: #575757;
+    --color-surface-500: #717171;
+    --color-surface-600: #8b8b8b;
+  
+    /** CSS DARK THEME MIXED SURFACE COLORS */
+    --color-surface-mixed-100: #191e25;
+    --color-surface-mixed-200: #2e3339;
+    --color-surface-mixed-300: #45494f;
+    --color-surface-mixed-400: #5d6066;
+    --color-surface-mixed-500: #76797e;
+    --color-surface-mixed-600: #8f9296;
+  }
+  
+  body {
+    background-color: var(--color-surface-mixed-100);
+    font-family: 'Outfit';
+  }

@@ -10,7 +10,8 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/general.css" />
+    <link rel="stylesheet" href="css/game.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700&display=swap"
       rel="stylesheet"
@@ -59,9 +60,9 @@
             <div id="player1-time">02:00</div>
           </div>
         <div class="xo-turn">
-          <img src="images/SVG/icon-x-default.svg" alt="x-default">
-          <!-- <img src="images/SVG/icon-o-default.svg" alt="o-default"> -->
-           <p>Turn</p>
+          <img id="x-turn"  class="turn-img active" src="images/SVG/icon-x-default.svg" alt="x-default">
+          <img id="o-turn" class="turn-img" src="images/SVG/icon-o-default.svg" alt="o-default">
+          <p id="turn-msg">Turn</p>
         </div>
         <div id="player2" class="player-box">
           <div id="player2-name">Player 2</div>
@@ -76,6 +77,7 @@
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"
     ></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="js/scripts.js"></script>
   </body>
 </html>
